@@ -12,14 +12,20 @@ import {
 import { FibbageAnswer } from './models/FibbageAnswer';
 import { FibbageGuess } from './models/FibbageGuess';
 import { FibbageEagerLoadingOptions } from '../interfaces/fibbage/FibbageEagerLoadingOptions';
-import { FindOrCreateOptions, Includeable } from 'sequelize/types';
+import { Includeable } from 'sequelize/types';
 import { FibbageCustomPrompt } from './models/FibbageCustomPrompt';
 import { FibbageCustomPromptDefaultAnswer } from './models/FibbageCustomPromptDefaultAnswer';
 import { FibbageCustomPromptApproval } from './models/FibbageCustomPromptApproval';
 import { Name } from './models/Name';
 import { MessageCount } from './models/MessageCount';
+import { CommandUsage } from './models/CommandUsage';
+import { Op, QueryTypes, TimeoutError } from 'sequelize';
 
 const MILLISECONDS_IN_DAY = 1000 * 60 * 60 * 24;
+
+interface UserVersionQueryResult {
+    user_version: number;
+}
 
 export default class Database {
     private sequelize: Sequelize;
@@ -36,6 +42,20 @@ export default class Database {
 
     public sync(): void {
         this.sequelize.sync();
+    }
+
+    public async getDatabaseVersion(): Promise<number> {
+        const results: UserVersionQueryResult[] = await this.sequelize.query(
+            'PRAGMA user_version;',
+            {
+                type: QueryTypes.SELECT, // This pragma is equivalent to a SELECT in terms of its output.
+            }
+        );
+        return results[0].user_version;
+    }
+
+    public async setDatabaseVersion(version: number): Promise<void> {
+        await this.sequelize.query(`PRAGMA user_version = ${version};`);
     }
 
     public async getUnusedQuestions(): Promise<Question[]> {
@@ -250,6 +270,65 @@ export default class Database {
     ): Promise<FibbageStats[]> {
         return await FibbageStats.findAll({
             order: Sequelize.literal(`${column} DESC`),
+        });
+    }
+
+    public async newCommandUsage(
+        userId: string,
+        commandName: string
+    ): Promise<CommandUsage> {
+        return CommandUsage.create({
+            user: userId,
+            commandName: commandName,
+            usedAt: new Date(),
+        });
+    }
+
+    public async createCommandUsageIfDoesntExist(
+        userId: string,
+        commandName: string,
+        usedAt: Date
+    ): Promise<CommandUsage> {
+        try {
+            return await CommandUsage.findOrCreate({
+                where: {
+                    user: userId,
+                    commandName: commandName,
+                    usedAt: usedAt,
+                },
+            }).then(([instance, _created]) => instance);
+        } catch (error) {
+            if (error instanceof TimeoutError) {
+                return this.createCommandUsageIfDoesntExist(
+                    userId,
+                    commandName,
+                    usedAt
+                );
+            }
+            throw error;
+        }
+    }
+
+    public async getCommandUsageByUserSince(
+        userId: string,
+        commandName: string,
+        since: Date
+    ): Promise<number> {
+        return CommandUsage.count({
+            where: {
+                user: userId,
+                commandName: commandName,
+                usedAt: { [Op.gte]: since },
+            },
+        });
+    }
+
+    public async getAllCommandUsageByUser(
+        userId: string,
+        commandName: string
+    ): Promise<number> {
+        return CommandUsage.count({
+            where: { user: userId, commandName: commandName },
         });
     }
 
