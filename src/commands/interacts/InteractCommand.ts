@@ -8,9 +8,9 @@ export class InteractCommand {
     public handler: CommandHandler;
     public builder: SlashCommandBuilder;
 
-    private positiveResponses: readonly string[];
-    private negativeResponses: readonly string[];
-    private chanceForNegativeResponse: number;
+    protected positiveResponses: readonly string[];
+    protected negativeResponses: readonly string[];
+    protected chanceForNegativeResponse: number;
 
     public constructor(
         name: string,
@@ -27,7 +27,7 @@ export class InteractCommand {
                 client,
                 interaction
             )({
-                content: this.getResponse(),
+                content: await this.getResponse(client, interaction),
             });
         };
 
@@ -36,7 +36,7 @@ export class InteractCommand {
             .setDescription(description);
     }
 
-    private getResponse() {
+    protected async getResponse(client: Bot, interaction: ChatInputCommandInteraction) {
         if (Math.random() <= this.chanceForNegativeResponse) {
             return this.negativeResponses[
                 Math.floor(Math.random() * this.negativeResponses.length)

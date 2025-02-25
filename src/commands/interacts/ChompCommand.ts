@@ -1,5 +1,5 @@
 import { CommandInteraction } from 'discord.js';
-import { InteractCommand } from './InteractCommand';
+import { CountedInteractCommand } from './CountedInteractCommand';
 
 const NEGATIVE_RESPONSES = [
     'OWWWW! What the heck!',
@@ -10,6 +10,7 @@ const NEGATIVE_RESPONSES = [
     'QUIT IT!',
     "That's *sooo* hemkin gross!",
     'Do you want me to bite you? My teeth are *very* sharp.',
+    "C'mon, you really thought the {count(delta=*, suffix=True)} chomp wasn't enough?",
 ];
 
 const POSITIVE_RESPONSES = [
@@ -22,11 +23,10 @@ const POSITIVE_RESPONSES = [
 ];
 
 const CHANCE_FOR_NEGATIVE_RESPONSE = 49 / 50;
-
 const NAME = 'chomp';
 const DESCRIPTION = 'What... why is your mouth open like that...?';
 
-export const { builder, handler } = new InteractCommand(
+export const { builder, handler } = new CountedInteractCommand(
     NAME,
     DESCRIPTION,
     POSITIVE_RESPONSES,
@@ -34,8 +34,6 @@ export const { builder, handler } = new InteractCommand(
     CHANCE_FOR_NEGATIVE_RESPONSE
 );
 
-export const guildOnly = (interaction: CommandInteraction) => false;
-
-export const permissions = (interaction: CommandInteraction) => false;
-
+export const guildOnly = (_interaction: CommandInteraction) => false;
+export const permissions = (_interaction: CommandInteraction) => false;
 export const shouldLoad = () => true;
