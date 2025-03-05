@@ -8,10 +8,10 @@ import {
 } from 'sequelize-typescript';
 
 @Table({
-    modelName: 'gimmicks_points',
+    modelName: 'brownie_points',
     timestamps: false,
 })
-export class GimmickPoints extends Model {
+export class BrowniePoints extends Model {
     @AllowNull(false)
     @PrimaryKey
     @Column
