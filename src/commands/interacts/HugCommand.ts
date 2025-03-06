@@ -38,8 +38,8 @@ export const { builder, handler } = new CountedInteractCommand(
     CHANCE_FOR_NEGATIVE_RESPONSE
 );
 
-export const guildOnly = (interaction: CommandInteraction) => false;
+export const guildOnly = (_interaction: CommandInteraction) => false;
 
-export const permissions = (interaction: CommandInteraction) => false;
+export const permissions = (_interaction: CommandInteraction) => false;
 
 export const shouldLoad = () => true;
