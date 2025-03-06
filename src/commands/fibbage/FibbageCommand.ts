@@ -1,7 +1,6 @@
 import {
     SlashCommandBuilder,
     SlashCommandSubcommandBuilder,
-    SlashCommandSubcommandGroupBuilder,
 } from '@discordjs/builders';
 import {
     ActionRowBuilder,
@@ -10,7 +9,6 @@ import {
     ChatInputCommandInteraction,
     CommandInteraction,
     MessageActionRowComponentBuilder,
-    ModalActionRowComponentBuilder,
     Snowflake,
 } from 'discord.js';
 import Bot from '../../client/Bot';
@@ -111,7 +109,8 @@ function getLeaderboardSwitcherActionRows(
     let currentRow = rows[0];
     for (const subcommand of Object.keys(LEADERBOARD_SUBCOMMAND_TO_DETAILS)) {
         if (currentRow.components.length === MAX_COMPONENTS_PER_ROW) {
-            currentRow = new ActionRowBuilder<MessageActionRowComponentBuilder>();
+            currentRow =
+                new ActionRowBuilder<MessageActionRowComponentBuilder>();
             rows.push(currentRow);
         }
         const subcommandDetails = LEADERBOARD_SUBCOMMAND_TO_DETAILS[subcommand];
@@ -136,33 +135,32 @@ export async function getLeaderboardFromSubcommand(
 ) {
     const columnOfInterest =
         LEADERBOARD_SUBCOMMAND_TO_DETAILS[subcommand].column;
-    const stats = await client.database.getFibbageStatsByColumn(
-        columnOfInterest
-    );
+    const stats =
+        await client.database.getFibbageStatsByColumn(columnOfInterest);
     if (page === 'FIRST') {
         page = 1;
     } else if (page === 'LAST') {
         page = Math.ceil(stats.length / 10);
     }
-    const leaderboardembed = generateLeaderboardEmbed(
+    const leaderboardEmbed = generateLeaderboardEmbed(
         stats,
         getLeaderboardMappingFunctionForColumn(columnOfInterest),
         page,
         getLeaderboardEmbedAttributesForColumn(subcommand)
     );
-    const leaderboardComponenetsRow = generateLeaderboardComponentsRow(
+    const leaderboardComponentsRow = generateLeaderboardComponentsRow(
         stats,
         page,
         `fibbage_leaderboard_${subcommand}_${userId}`
     );
-    const outputActionRows = [leaderboardComponenetsRow].concat(
+    const outputActionRows = [leaderboardComponentsRow].concat(
         getLeaderboardSwitcherActionRows(subcommand, userId)
     );
-    return { leaderboardembed, outputActionRows };
+    return { leaderboardEmbed, outputActionRows };
 }
 
 async function handleLeaderboard(client: Bot, interaction: CommandInteraction) {
-    const { leaderboardembed, outputActionRows } =
+    const { leaderboardEmbed, outputActionRows } =
         await getLeaderboardFromSubcommand(
             client,
             'points',
@@ -173,7 +171,7 @@ async function handleLeaderboard(client: Bot, interaction: CommandInteraction) {
         client,
         interaction
     )({
-        embeds: [leaderboardembed],
+        embeds: [leaderboardEmbed],
         components: outputActionRows,
     });
     client.logger?.debug(
@@ -244,7 +242,7 @@ async function removeFibbageRole(client: Bot, interaction: CommandInteraction) {
         interaction
     )({
         content:
-            "I'm sorry to see you leave ;w;\nIf you still have any unaswered lies or questions, you'll can still answer them, but I won't ask you new ones!",
+            "I'm sorry to see you leave ;w;\nIf you still have any unanswered lies or questions, you'll can still answer them, but I won't ask you new ones!",
         ephemeral: true,
     });
     client.logger?.info(`Removed fibbage role from ${member.user.tag}`);
@@ -288,7 +286,7 @@ export const handler: CommandHandler = async (
 
 export const builder = new SlashCommandBuilder()
     .setName('fibbage')
-    .setDescription('Various functions relating to Fbbage!')
+    .setDescription('Various functions relating to Fibbage!')
     .addSubcommand(
         new SlashCommandSubcommandBuilder()
             .setName('join')
