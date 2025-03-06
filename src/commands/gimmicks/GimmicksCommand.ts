@@ -2,7 +2,7 @@ import {
     SlashCommandBuilder,
     SlashCommandSubcommandBuilder,
 } from '@discordjs/builders';
-import { ChatInputCommandInteraction, CommandInteraction } from 'discord.js';
+import { ChatInputCommandInteraction } from 'discord.js';
 import Bot from '../../client/Bot';
 import { GimmickPoints } from '../../database/models/GimmickPoints';
 import { CommandHandler } from '../../interfaces/Command';
@@ -21,29 +21,32 @@ export const leaderboardEmbedAttributes: EmbedAttributes = {
     keyName: 'User',
     valueName: 'Points',
 };
-export const leaderboardMappingFunction: LeaderboardMap<
-    GimmickPoints
-> = (value) => [`<@${value.id}>`, value.points.toString()];
+export const leaderboardMappingFunction: LeaderboardMap<GimmickPoints> = (
+    value
+) => [`<@${value.id}>`, value.points.toString()];
 
 async function handleLeaderboardSubcommand(
     client: Bot,
     interaction: ChatInputCommandInteraction
 ): Promise<void> {
     const points = await client.database.getAllGimmickPoints();
-    const leaderboardembed = generateLeaderboardEmbed(
+    const leaderboardEmbed = generateLeaderboardEmbed(
         points,
         leaderboardMappingFunction,
         1,
         leaderboardEmbedAttributes
     );
-    const leaderboardComponenetsRow = generateLeaderboardComponentsRow(
+    const leaderboardComponentsRow = generateLeaderboardComponentsRow(
         points,
         1,
         `gimmicks_leaderboard_${interaction.user.id}`
     );
-    await getSafeReplyFunction(client, interaction)({
-        embeds: [leaderboardembed],
-        components: [leaderboardComponenetsRow],
+    await getSafeReplyFunction(
+        client,
+        interaction
+    )({
+        embeds: [leaderboardEmbed],
+        components: [leaderboardComponentsRow],
     });
 }
 
@@ -73,8 +76,8 @@ export const builder = new SlashCommandBuilder()
             .setDescription('Shows the leaderboard for the gimmick channels!')
     );
 
-export const guildOnly = (interaction: ChatInputCommandInteraction) => true;
+export const guildOnly = (_interaction: ChatInputCommandInteraction) => true;
 
-export const permissions = (interaction: ChatInputCommandInteraction) => false;
+export const permissions = (_interaction: ChatInputCommandInteraction) => false;
 
 export const shouldLoad = () => true;
