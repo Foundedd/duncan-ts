@@ -1,7 +1,7 @@
 import { CommandHandler } from '../../interfaces/Command';
 import { SlashCommandBuilder } from '@discordjs/builders';
 import Bot from '../../client/Bot';
-import { ChatInputCommandInteraction, CommandInteraction } from 'discord.js';
+import { ChatInputCommandInteraction } from 'discord.js';
 import {
     getRandomUserToMentionInGuild,
     getSafeReplyFunction,
