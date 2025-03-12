@@ -1,4 +1,4 @@
-import { MessageComponentInteraction } from 'discord.js';
+import { ButtonInteraction, MessageComponentInteraction } from 'discord.js';
 import Bot from '../client/Bot';
 import { Loadable } from './Loadable';
 

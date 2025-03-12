@@ -42,13 +42,13 @@ export const handler: ComponentHandlerFunction = async (
         client.logger?.error(`Invalid page number: ${idInfo![3]}`);
         return;
     }
-    const { leaderboardembed, outputActionRows } =
+    const { leaderboardEmbed, outputActionRows } =
         await getLeaderboardFromSubcommand(client, subCommand, userId, page);
     client.logger?.debug(
         `Generated ${subCommand} leaderboard (page ${page}) for ${interaction.user.tag}`
     );
     await interaction.update({
-        embeds: [leaderboardembed],
+        embeds: [leaderboardEmbed],
         components: outputActionRows,
     });
 };
